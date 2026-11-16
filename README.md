@@ -28,6 +28,8 @@ I owned the hardware side of gPace from the first prototype to delivered custome
 
 ## The product
 
+<p align="center"><img src="assets/12-urun-ozellikleri.jpg" alt="VT-1: 25 Hz, 0.2 m, 18 h, BLE 5.2, internal storage, pocket size, 6-axis, USB-C" width="100%"></p>
+
 VT-1 is a small, oval, battery-powered tracker. It reads a high-rate GNSS fix and inertial motion data, packs them into one compact frame and streams it to a phone app over Bluetooth LE, while keeping its own memory card for logging. It was taken from first prototype to a production-ready design with injection-molded housing and retail packaging.
 
 | Stage | What it looked like |
@@ -35,6 +37,12 @@ VT-1 is a small, oval, battery-powered tracker. It reads a high-rate GNSS fix an
 | **First prototype** (green PCB, ceramic patch antenna, LiPo, LED bar) | <img src="assets/03-ilk-prototip.jpg" alt="First prototype" width="260"> <img src="assets/10-ilk-prototip-calisirken.jpg" alt="First prototype running" width="260"> |
 | **v1.2 production PCB** (black, antenna connector, SD card, USB-C) | <img src="assets/07-pcb-panel-ust-yuz.jpg" alt="v1.2 top side" width="260"> <img src="assets/05-pcb-panel-alt-yuz.jpg" alt="v1.2 bottom side" width="260"> |
 | **Housing and retail box** | <img src="assets/01-enjeksiyon-kalibi.jpg" alt="Injection mold" width="170"> <img src="assets/04-urun-kutusu.jpg" alt="Retail box" width="170"> <img src="assets/02-kamera-tutucu-isbirligi.jpg" alt="Collaboration with a camera-mount maker" width="170"> |
+
+## The app
+
+The VT-1 pairs with the gPace phone app (lap analysis, drag and acceleration timing, telemetry video overlay). Follow the project on [Instagram](https://www.instagram.com/gpace.tech) and [the website](https://gpaceapp.wixstudio.com/gpace).
+
+<p align="center"><img src="assets/13-uygulama-ekranlari.jpg" alt="gPace app: telemetry video and drag timing screens with VT-1" width="60%"> <img src="assets/14-urun-ust-gorunum.jpg" alt="VT-1 top view" width="26%"></p>
 
 ## Hardware (v1.2)
 
