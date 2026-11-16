@@ -1,0 +1,24 @@
+--- a/main/main.c
++++ b/main/main.c
+@@ -123,7 +123,7 @@
+     init();
+ 
+     /* Initialize ISR for shutdown event */
+-    shutdown_evt_queue = xQueueCreate(10, sizeof(uint32_t));
++    shutdown_evt_queue = xQueueCreate(10, sizeof(uint8_t));
+     gpio_install_isr_service(ESP_INTR_FLAG_LEVEL1);
+     gpio_isr_handler_add(BUTTON_PIN, gpio_isr_handler, NULL);
+ 
+--- a/main/src/ble_payload.c
++++ b/main/src/ble_payload.c
+@@ -49,8 +49,8 @@
+     acc_y.val16 = imu_res.acc_y;
+     acc_z.val16 = imu_res.acc_z;
+     gyro_x.val16 = imu_res.gyro_x;
+-    gyro_y.val16 = imu_res.gyro_x;
+-    gyro_z.val16 = imu_res.gyro_x;
++    gyro_y.val16 = imu_res.gyro_y;
++    gyro_z.val16 = imu_res.gyro_z;
+ 
+     buffer[0] = 1; // Syncronization byte
+ 
