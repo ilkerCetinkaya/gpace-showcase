@@ -58,15 +58,41 @@ PCB layout (3D view):
 
 ## Firmware
 
-ESP-IDF (C) with the NimBLE Bluetooth LE stack. Developed together with **Emir Demirhan** (the repository was committed under his account). Source snapshot in [`firmware/`](firmware).
+ESP-IDF (C) with the NimBLE Bluetooth LE stack. Developed together with **Emir Demirhan** (the v1 repository was committed under his account). Two generations are in this repository:
 
-- **GNSS configuration and parsing:** on boot the firmware finds the receiver's link speed, enables GPS, Galileo, BeiDou, GLONASS, QZSS and SBAS, sets the dynamic model, measurement and navigation rates and the protocol, then reads position-velocity-time messages from the u-blox binary protocol
-- **IMU:** loads the BMI270 configuration and reads acceleration and angular rate
-- **Bluetooth LE GATT server:** custom data characteristic (read and notify), Device Information (manufacturer, model, serial, firmware version), Battery Level, and characteristics for over-the-air firmware transfer
-- **Data frame:** one 55-byte frame plus checksum carrying longitude, latitude, altitude (ellipsoid and sea level), horizontal accuracy, speed, heading, speed accuracy, PDOP, satellite count, time, six IMU axes and fix type, notified roughly every 10 ms
-- **Battery measurement:** calibrated ADC reads through the voltage divider
-- **Power management:** button interrupt, queue and task that turn the latch MOSFET off after a short LED sequence
-- **Fault handling:** retries for GNSS and IMU start-up, an error LED task, and a restart if initialization keeps failing
+| | Folder | What it is |
+|---|---|---|
+| **v1** | [`firmware/`](firmware) | the firmware as it ran on the products, snapshot unchanged |
+| **v2** | [`firmware-v2/`](firmware-v2) | a ground-up rework with a tested core, described below |
+
+### Our own drivers
+
+The two sensor drivers were the biggest engineering effort in the firmware, and both were written by us rather than taken from a vendor library:
+
+- **u-blox NEO-M9N driver:** speaks the receiver's binary protocol directly. Finds the link speed, writes the configuration keys (GPS, Galileo, BeiDou, GLONASS, QZSS, SBAS, dynamic model, 25 Hz rate, output messages, baud), parses position-velocity-time messages and verifies every checksum.
+- **Bosch BMI270 driver:** brings the IMU up from reset, uploads the 8 KB configuration image, verifies the init status, reads acceleration and angular rate in one burst and applies the gyro cross-axis correction.
+
+### Firmware v2
+
+v2 is the project as I would build it knowing what v1 taught us.
+
+- **Portable core, thin hardware layer.** Drivers talk to small function tables instead of the chip, so the same code runs against a **fake GNSS receiver and a fake BMI270** on a laptop. 706 automated checks, built with strict warnings and sanitizers.
+- **Better drivers.** Byte-wise parser with checksum verification and resync, key sizes derived from the key ID, rejected keys reported, automatic output with polling fallback, one burst read per IMU sample and no heap use in the data path.
+- **Same bytes on the wire.** The 57-byte frame is proven byte-identical to the v1 packer over 500 random inputs, so existing phone apps keep working.
+- **Defects fixed.** Everything found in the code review below, plus removal of sensor I/O from inside the Bluetooth callback.
+- **Documented.** [Architecture](firmware-v2/docs/ARCHITECTURE.md), [protocol](firmware-v2/docs/PROTOCOL.md), [bring-up checklist](firmware-v2/docs/BRINGUP.md), [v1 to v2 changes](firmware-v2/docs/MIGRATION.md), [testing](firmware-v2/docs/TESTING.md).
+
+**Status, stated plainly:** the portable core and its tests pass on a laptop. The ESP-IDF layer of v2 has not been compiled or run on a board, and a few register details are flagged for verification in the bring-up checklist. v1 is the code that shipped.
+
+### What the firmware does (v1 and v2)
+
+- **GNSS configuration and parsing** with all constellations enabled and a high update rate
+- **IMU** acceleration and angular rate
+- **Bluetooth LE GATT server:** custom data characteristic (read and notify), Device Information, Battery Level, and characteristics for over-the-air firmware transfer
+- **Data frame:** 57 bytes carrying longitude, latitude, altitude, accuracy, speed, heading, DOP, satellite count, time, six IMU axes and fix type
+- **Battery measurement** through a calibrated ADC and voltage divider
+- **Power management:** soft-latch shutdown on button press with LED sequence
+- **Fault handling:** start-up retries, error LED, restart on sustained failure
 
 <table><tr>
 <td><img src="assets/09-firmware-baslatma.jpg" alt="Boot log: IMU, GNSS configuration, Bluetooth start" width="100%"></td>
@@ -78,11 +104,11 @@ ESP-IDF (C) with the NimBLE Bluetooth LE stack. Developed together with **Emir D
 
 ### Code review
 
-While documenting the code I found two real defects and prepared a patch without touching the original snapshot. Details in [`firmware-review/REVIEW.md`](firmware-review/REVIEW.md); the patch is [`fixes.patch`](firmware-review/fixes.patch). **The patch has not been compiled or tried on a board.**
+Reading v1 line by line I found three real defects (wrong gyro axes, a mis-sized queue, a battery read that sends bytes past its variable). Details in [`firmware-review/REVIEW.md`](firmware-review/REVIEW.md); a patch for the first two is in [`fixes.patch`](firmware-review/fixes.patch). **The patch has not been compiled or tried on a board.**
 
 ## Skills demonstrated
 
-Embedded product development from prototype to production · schematic and PCB design (EasyEDA, JLCPCB manufacturing) · component selection and procurement · inventory and stock control · assembly and production coordination · international air-freight logistics · GNSS and IMU sensor integration · Bluetooth LE GATT and data-frame design · ESP-IDF firmware · battery, charging and soft-power design · enclosure and injection-mold preparation · partner collaboration · code review and documentation
+Embedded product development from prototype to production · schematic and PCB design (EasyEDA, JLCPCB manufacturing) · component selection and procurement · inventory and stock control · assembly and production coordination · international air-freight logistics · GNSS and IMU sensor integration · writing sensor drivers from datasheets · Bluetooth LE GATT and data-frame design · ESP-IDF firmware · host-side unit testing with simulated hardware · battery, charging and soft-power design · enclosure and injection-mold preparation · partner collaboration · code review and documentation
 
 ---
 

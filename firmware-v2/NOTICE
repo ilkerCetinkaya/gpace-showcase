@@ -1,0 +1,1 @@
+components/gpace_bmi270/include/gpace_bmi270_config_blob.h contains the BMI270 configuration data published by Bosch Sensortec. It is not original work. Check Bosch's license terms and keep their notice before redistributing it.
